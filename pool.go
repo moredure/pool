@@ -39,9 +39,9 @@ func (p *referenceCountedPool) Get() ReferenceCountable {
 }
 
 type ReferenceCounter struct {
-	count       *uint32    `sql:"-" yaml:"-"`
-	destination *sync.Pool `sql:"-" yaml:"-"`
-	instance    Reseter    `sql:"-" yaml:"-"`
+	count       *uint32    `sql:"-" yaml:"-" json:"-"`
+	destination *sync.Pool `sql:"-" yaml:"-" json:"-"`
+	instance    Reseter    `sql:"-" yaml:"-" json:"-"`
 }
 
 func (r ReferenceCounter) IncrementReferenceCount() {
