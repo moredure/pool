@@ -6,7 +6,7 @@ import (
 )
 
 type ReferenceCountable interface {
-	SetInstance(i Reseter)
+	setInstance(i Reseter)
 	IncrementReferenceCount()
 	IncrementReferenceCountByN(n uint32)
 	DecrementReferenceCount()
@@ -33,7 +33,7 @@ func NewReferenceCountedPool(factory func(referenceCounter ReferenceCounter) Ref
 
 func (p *referenceCountedPool) Get() ReferenceCountable {
 	o := p.pool.Get().(ReferenceCountable)
-	o.SetInstance(o)
+	o.setInstance(o)
 	o.IncrementReferenceCount()
 	return o
 }
@@ -73,6 +73,6 @@ func (r ReferenceCounter) DecrementReferenceCountByN(n uint32) {
 	}
 }
 
-func (r *ReferenceCounter) SetInstance(i Reseter) {
+func (r *ReferenceCounter) setInstance(i Reseter) {
 	r.instance = i
 }
