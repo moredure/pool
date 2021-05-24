@@ -1,6 +1,7 @@
 package pool
 
 import (
+	"math"
 	"sync"
 	"sync/atomic"
 )
@@ -26,6 +27,7 @@ func NewReferenceCountedPool(factory func(referenceCounter ReferenceCounter) Ref
 			count:       new(uint32),
 			destination: p.pool,
 		})
+		o.setInstance(o)
 		return o
 	}
 	return p
@@ -33,7 +35,6 @@ func NewReferenceCountedPool(factory func(referenceCounter ReferenceCounter) Ref
 
 func (p *referenceCountedPool) Get() ReferenceCountable {
 	o := p.pool.Get().(ReferenceCountable)
-	o.setInstance(o)
 	o.IncrementReferenceCount()
 	return o
 }
@@ -57,13 +58,11 @@ type Reseter interface {
 }
 
 func (r ReferenceCounter) DecrementReferenceCount() {
-	if atomic.LoadUint32(r.count) == 0 {
-		panic("this should not happen")
-	}
-	if atomic.AddUint32(r.count, ^uint32(0)) == 0 {
+	if count := atomic.AddUint32(r.count, ^uint32(0)); count == 0 {
 		r.instance.Reset()
 		r.destination.Put(r.instance)
-		r.instance = nil
+	} else if count == math.MaxUint32 {
+		panic("this should not happen")
 	}
 }
 
