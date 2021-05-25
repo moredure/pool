@@ -21,6 +21,11 @@ type (
 	referenceCountedPool struct {
 		pool *sync.Pool
 	}
+	ReferenceCounter struct {
+		count       *uint32    `sql:"-" yaml:"-" json:"-"`
+		destination *sync.Pool `sql:"-" yaml:"-" json:"-"`
+		instance    Reseter    `sql:"-" yaml:"-" json:"-"`
+	}
 )
 
 func NewReferenceCountedPool(factory func(referenceCounter ReferenceCounter) ReferenceCountable) *referenceCountedPool {
@@ -41,12 +46,6 @@ func (p *referenceCountedPool) Get() ReferenceCountable {
 	o := p.pool.Get().(ReferenceCountable)
 	o.IncrementReferenceCount()
 	return o
-}
-
-type ReferenceCounter struct {
-	count       *uint32    `sql:"-" yaml:"-" json:"-"`
-	destination *sync.Pool `sql:"-" yaml:"-" json:"-"`
-	instance    Reseter    `sql:"-" yaml:"-" json:"-"`
 }
 
 func (r ReferenceCounter) IncrementReferenceCount() {
