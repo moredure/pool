@@ -6,18 +6,22 @@ import (
 	"sync/atomic"
 )
 
-type ReferenceCountable interface {
-	setInstance(i Reseter)
-	IncrementReferenceCount()
-	IncrementReferenceCountByN(n uint32)
-	DecrementReferenceCount()
-	DecrementReferenceCountByN(n uint32)
-	Reseter
-}
-
-type referenceCountedPool struct {
-	pool *sync.Pool
-}
+type (
+	Reseter interface {
+		Reset()
+	}
+	ReferenceCountable interface {
+		setInstance(i Reseter)
+		IncrementReferenceCount()
+		IncrementReferenceCountByN(n uint32)
+		DecrementReferenceCount()
+		DecrementReferenceCountByN(n uint32)
+		Reseter
+	}
+	referenceCountedPool struct {
+		pool *sync.Pool
+	}
+)
 
 func NewReferenceCountedPool(factory func(referenceCounter ReferenceCounter) ReferenceCountable) *referenceCountedPool {
 	p := new(referenceCountedPool)
@@ -51,10 +55,6 @@ func (r ReferenceCounter) IncrementReferenceCount() {
 
 func (r ReferenceCounter) IncrementReferenceCountByN(n uint32) {
 	atomic.AddUint32(r.count, n)
-}
-
-type Reseter interface {
-	Reset()
 }
 
 func (r ReferenceCounter) DecrementReferenceCount() {
