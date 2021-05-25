@@ -7,16 +7,16 @@ import (
 )
 
 type (
-	Reseter interface {
+	instance interface {
 		Reset()
 	}
 	ReferenceCountable interface {
-		setInstance(i Reseter)
+		setInstance(i instance)
 		IncrementReferenceCount()
 		IncrementReferenceCountByN(n uint32)
 		DecrementReferenceCount()
 		DecrementReferenceCountByN(n uint32)
-		Reseter
+		instance
 	}
 	referenceCountedPool struct {
 		pool *sync.Pool
@@ -24,7 +24,7 @@ type (
 	ReferenceCounter struct {
 		count       *uint32    `sql:"-" yaml:"-" json:"-"`
 		destination *sync.Pool `sql:"-" yaml:"-" json:"-"`
-		instance    Reseter    `sql:"-" yaml:"-" json:"-"`
+		instance    instance   `sql:"-" yaml:"-" json:"-"`
 	}
 )
 
@@ -71,6 +71,6 @@ func (r ReferenceCounter) DecrementReferenceCountByN(n uint32) {
 	}
 }
 
-func (r *ReferenceCounter) setInstance(i Reseter) {
+func (r *ReferenceCounter) setInstance(i instance) {
 	r.instance = i
 }
